@@ -1,10 +1,14 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class FlyCamera : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float turnSpeed = 0.2f;
+    public float sprintMult = 3f;
+    public float slowtMult = 0.5f;
+
+    public Rigidbody body;
+    public Camera playerCamera;
 
     private void Start()
     {
@@ -25,13 +29,30 @@ public class FlyCamera : MonoBehaviour
         //Leitura de input
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
-        Vector3 input = new Vector3(x, 0, y);
+
+        //UP e DOWN input
+        float upDownInput = 0;
+        if (Input.GetKey(KeyCode.E))
+            upDownInput = 1;
+        else if (Input.GetKey(KeyCode.Q))
+            upDownInput = -1;
+
+        Vector3 input = new Vector3(x, upDownInput, y);
 
         //Translacao Input
-        Vector3 worldInput = transform.TransformDirection(input);
+        Vector3 worldInput = playerCamera.transform.TransformDirection(input);
+
+        float speed = moveSpeed;
+
+        if (Input.GetKey(KeyCode.LeftShift))
+            speed *= sprintMult;
+
+        if (Input.GetKey(KeyCode.LeftControl))
+            speed *= slowtMult;
 
         //Movimento
-        transform.position += worldInput * moveSpeed * Time.deltaTime;
+        body.linearVelocity = worldInput * speed;
+        //transform.position += worldInput * speed * Time.deltaTime;
     }
 
     void Turn()
@@ -47,7 +68,7 @@ public class FlyCamera : MonoBehaviour
 
         //Translacao Input
         //Ordem de Aplicacao de Rotacao
-        transform.rotation = yaw * transform.rotation * pitch;
+        playerCamera.transform.rotation = yaw * playerCamera.transform.rotation * pitch;
 
     }
 

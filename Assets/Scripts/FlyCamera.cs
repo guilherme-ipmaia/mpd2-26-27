@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class FlyCamera : MonoBehaviour
 {
+    public static FlyCamera current;
+
     public float moveSpeed = 5f;
     public float turnSpeed = 0.2f;
     public float sprintMult = 3f;
@@ -9,6 +11,10 @@ public class FlyCamera : MonoBehaviour
 
     public Rigidbody body;
     public Camera playerCamera;
+    private void Awake()
+    {
+        current = this;
+    }
 
     private void Start()
     {
@@ -26,9 +32,7 @@ public class FlyCamera : MonoBehaviour
 
     void Movement()
     {
-        //Leitura de input
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+        Vector2 inputRaw = InputHandler.current.move.ReadValue<Vector2>();
 
         //UP e DOWN input
         float upDownInput = 0;
@@ -37,7 +41,7 @@ public class FlyCamera : MonoBehaviour
         else if (Input.GetKey(KeyCode.Q))
             upDownInput = -1;
 
-        Vector3 input = new Vector3(x, upDownInput, y);
+        Vector3 input = new Vector3(inputRaw.x, upDownInput, inputRaw.y);
 
         //Translacao Input
         Vector3 worldInput = playerCamera.transform.TransformDirection(input);
@@ -57,13 +61,13 @@ public class FlyCamera : MonoBehaviour
 
     void Turn()
     {
-        float x = Input.GetAxis("Mouse X");
-        float y = Input.GetAxis("Mouse Y");
-        Vector3 input = new Vector3(-y, x, 0) * turnSpeed * Time.deltaTime;
+        Vector2 inputRaw = InputHandler.current.look.ReadValue<Vector2>();
+
+        Vector3 input = new Vector3(-inputRaw.y, inputRaw.x, 0) * turnSpeed * Time.deltaTime;
 
         //Criação Quaternions
-        Quaternion yaw = Quaternion.Euler(0, x, 0);
-        Quaternion pitch = Quaternion.Euler(-y, 0, 0);
+        Quaternion yaw = Quaternion.Euler(0, inputRaw.x, 0);
+        Quaternion pitch = Quaternion.Euler(-inputRaw.y, 0, 0);
 
 
         //Translacao Input

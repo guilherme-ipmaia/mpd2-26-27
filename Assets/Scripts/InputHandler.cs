@@ -8,6 +8,7 @@ public class InputHandler : MonoBehaviour
     [Header("Input Actions")]
     public InputAction move;
     public InputAction look;
+    public InputAction interact;
 
     private void Awake()
     {
@@ -18,5 +19,6 @@ public class InputHandler : MonoBehaviour
     {
         move.Enable();
         look.Enable();
+        interact.Enable();
     }
 }

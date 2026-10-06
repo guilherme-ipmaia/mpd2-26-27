@@ -4,6 +4,8 @@ public class FlyCamera : MonoBehaviour
 {
     public static FlyCamera current;
 
+    public bool move=false;
+
     public float moveSpeed = 5f;
     public float turnSpeed = 0.2f;
     public float sprintMult = 3f;
@@ -32,6 +34,8 @@ public class FlyCamera : MonoBehaviour
 
     void Movement()
     {
+        if (!move) return;
+
         Vector2 inputRaw = InputHandler.current.move.ReadValue<Vector2>();
 
         //UP e DOWN input

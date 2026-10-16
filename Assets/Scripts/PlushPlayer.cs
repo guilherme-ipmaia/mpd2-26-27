@@ -3,14 +3,29 @@ using DG.Tweening;
 
 public class PlushPlayer : MonoBehaviour
 {
-    public Transform point;
+    [Header("Push")]
+    public float pushForce = 2f;
+    public Transform arrow;
+    public float rotationSpeed = 120f;
+
+
+    [Header("Animations")]
+    public Transform visualRoot;
     public float duration = 0.5f;
     public Ease ease;
     public AnimationCurve curve;
+    private Tween shakeTween;
+
+    private Rigidbody body;
+    private Vector3 dir;
+
+    private void Awake()
+    {
+        body = GetComponent<Rigidbody>();
+    }
+
     void Start()
     {
-        //transform.DOMove(point.position, duration).SetEase(curve).OnComplete(MoveComplete);
-        //transform.DOMove(point.position, duration).SetEase(curve).SetLoops(-1, LoopType.Yoyo).OnStepComplete(MoveComplete);
     }
 
     //void MoveComplete()
@@ -20,17 +35,59 @@ public class PlushPlayer : MonoBehaviour
 
     private void Update()
     {
-        if (Input.anyKeyDown)
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            //transform.DOScale(0.8f, 0.05f).SetLoops(2,LoopType.Yoyo);
-            transform.DOScale(0.8f, 0.1f).SetEase(curve);
+            //if (dir == Vector3.zero)
+            dir = Random.insideUnitSphere;
 
-            //Rotacao Grande
-            //transform.DORotate(new Vector3(5000, 2000, 0), 2f, RotateMode.FastBeyond360);
+            if (shakeTween != null)
+            {
+                shakeTween.Kill();
+                shakeTween = null;
+            }
 
-            //Rotacao Pequena
-            transform.DORotate(new Vector3(50, 50, 0), 0.1f, RotateMode.WorldAxisAdd).SetEase(Ease.InOutQuad);
+            shakeTween = visualRoot.DOShakePosition(200f, 0.05f, 80);
         }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            var intensity = rotationSpeed * Time.deltaTime;
+            dir = Quaternion.Euler(intensity, intensity, intensity) * dir;
+            arrow.right = -dir;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            if (shakeTween != null)
+            {
+                shakeTween.Kill();
+                shakeTween = null;
+            }
+
+            //Limpar outras forças
+            body.linearVelocity = Vector3.zero;
+
+            //Aplicar força Random
+            arrow.right = -dir;
+            body.AddForce(dir * pushForce, ForceMode.Impulse);
+
+            //Animacao
+            visualRoot.DOScale(0.12f, 0.1f).SetEase(curve);
+            visualRoot.DORotate(new Vector3(50, 50, 0), 0.1f, RotateMode.WorldAxisAdd).SetEase(Ease.InOutQuad);
+        }
+
+        //if (Input.anyKeyDown)
+        //{
+        //    //transform.DOScale(0.8f, 0.05f).SetLoops(2,LoopType.Yoyo);
+
+
+        //    //Rotacao Grande
+        //    //transform.DORotate(new Vector3(5000, 2000, 0), 2f, RotateMode.FastBeyond360);
+
+        //    //Rotacao Pequena
+
+        //}
     }
 
 

@@ -15,6 +15,7 @@ public class PlushPlayer : MonoBehaviour
     public Ease ease;
     public AnimationCurve curve;
     private Tween shakeTween;
+    private Tween shrinkTween;
 
     private Rigidbody body;
     private Vector3 dir;
@@ -47,7 +48,18 @@ public class PlushPlayer : MonoBehaviour
                 shakeTween = null;
             }
 
-            shakeTween = visualRoot.DOShakePosition(200f, 0.05f, 80);
+            shakeTween = visualRoot.DOShakePosition(200f, 0.035f, 70);
+
+
+            if (shrinkTween != null)
+            {
+                shrinkTween.Kill();
+                shrinkTween = null;
+            }
+
+            shrinkTween = visualRoot.DOScale(0.15f, 0.15f).SetEase(Ease.InOutQuad);
+
+            arrow.DOScale(47f, 0.4f).From(0f).SetEase(Ease.OutSine);
         }
 
         if (Input.GetKey(KeyCode.Space))
@@ -65,15 +77,22 @@ public class PlushPlayer : MonoBehaviour
                 shakeTween = null;
             }
 
+            if (shrinkTween != null)
+            {
+                shrinkTween.Kill();
+                shrinkTween = null;
+            }
+
+
             //Limpar outras forças
             body.linearVelocity = Vector3.zero;
 
             //Aplicar força Random
-            arrow.right = -dir;
+            arrow.DOScale(80f, 0.4f).SetEase(curve);
             body.AddForce(dir * pushForce, ForceMode.Impulse);
 
             //Animacao
-            visualRoot.DOScale(0.12f, 0.1f).SetEase(curve);
+            visualRoot.DOScale(0.12f, 0.1f).From(0.2f).SetEase(curve);
             visualRoot.DORotate(new Vector3(50, 50, 0), 0.1f, RotateMode.WorldAxisAdd).SetEase(Ease.InOutQuad);
         }
 
